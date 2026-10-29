@@ -44,6 +44,12 @@ dotnet publish -c Release -r win-x64 --self-contained false
 
 本项目面向 net10.0-windows，需要 .NET 10 SDK 构建、.NET 10 Runtime（含 WindowsDesktop）运行。
 
+## 快捷键
+
+复制: CTRL+SHIFT+C
+粘贴: CTRL+SHIFT+V / 鼠标右键
+查找: CTRL+SHIFT+F
+
 ## 暂未实现
 
 - SSH Agent/键盘交互认证
