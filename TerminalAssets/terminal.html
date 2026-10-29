@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="vendor/xterm.css">
+  <style>
+    html, body, #terminal { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #0c0c0c; }
+    .xterm { padding: 6px 8px; box-sizing: border-box; }
+  </style>
+</head>
+<body>
+<div id="terminal"></div>
+<script src="vendor/xterm.js"></script>
+<script src="vendor/addon-fit.js"></script>
+<script src="vendor/addon-search.js"></script>
+<script>
+  const terminal = new Terminal({
+    allowProposedApi: false,
+    convertEol: false,
+    cursorBlink: true,
+    cursorStyle: 'block',
+    fontFamily: 'Cascadia Mono, Consolas, monospace',
+    fontSize: 14,
+    letterSpacing: 0,
+    lineHeight: 1.1,
+    scrollback: 10000,
+    tabStopWidth: 8,
+    theme: {
+      background: '#0c0c0c', foreground: '#cccccc', cursor: '#ffffff', cursorAccent: '#0c0c0c',
+      selectionBackground: '#264f78', black: '#0c0c0c', red: '#c50f1f', green: '#13a10e',
+      yellow: '#c19c00', blue: '#0037da', magenta: '#881798', cyan: '#3a96dd', white: '#cccccc',
+      brightBlack: '#767676', brightRed: '#e74856', brightGreen: '#16c60c', brightYellow: '#f9f1a5',
+      brightBlue: '#3b78ff', brightMagenta: '#b4009e', brightCyan: '#61d6d6', brightWhite: '#f2f2f2'
+    }
+  });
+  const fitAddon = new FitAddon.FitAddon();
+  const searchAddon = new SearchAddon.SearchAddon({ highlightLimit: 1000 });
+  terminal.loadAddon(fitAddon);
+  terminal.loadAddon(searchAddon);
+  terminal.open(document.getElementById('terminal'));
+
+  const post = message => window.chrome.webview.postMessage(message);
+  const searchDecorations = {
+    matchBackground: '#665c00',
+    matchBorder: '#d7ba7d',
+    matchOverviewRuler: '#d7ba7d',
+    activeMatchBackground: '#f2c811',
+    activeMatchBorder: '#ffffff',
+    activeMatchColorOverviewRuler: '#f2c811'
+  };
+
+  terminal.onData(data => post({ type: 'input', data }));
+  terminal.onResize(size => post({ type: 'resize', cols: size.cols, rows: size.rows }));
+  searchAddon.onDidChangeResults(result => post({
+    type: 'searchResults', index: result.resultIndex, count: result.resultCount
+  }));
+  terminal.attachCustomKeyEventHandler(event => {
+    if (event.type !== 'keydown') return true;
+    if (event.ctrlKey && event.shiftKey && event.code === 'KeyF') {
+      post({ type: 'find' });
+      return false;
+    }
+    if (event.ctrlKey && !event.shiftKey && event.code === 'KeyC' && terminal.hasSelection()) {
+      post({ type: 'copy', data: terminal.getSelection() });
+      return false;
+    }
+    if (event.ctrlKey && event.shiftKey && event.code === 'KeyC') {
+      post({ type: 'copy', data: terminal.getSelection() });
+      return false;
+    }
+    if (event.ctrlKey && event.shiftKey && event.code === 'KeyV') {
+      post({ type: 'paste' });
+      return false;
+    }
+    return true;
+  });
+  document.addEventListener('contextmenu', event => {
+    event.preventDefault();
+    if (terminal.hasSelection()) post({ type: 'copy', data: terminal.getSelection() });
+    else post({ type: 'paste' });
+  });
+
+  const decoder = new TextDecoder('utf-8');
+  const decode = (base64, streaming = false) => {
+    const binary = atob(base64);
+    const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+    return decoder.decode(bytes, { stream: streaming });
+  };
+  const searchOptions = (caseSensitive, incremental) => ({
+    caseSensitive,
+    incremental,
+    decorations: searchDecorations
+  });
+  window.crtWrite = base64 => terminal.write(decode(base64, true));
+  window.crtPaste = base64 => post({ type: 'input', data: decode(base64) });
+  window.crtFocus = () => terminal.focus();
+  window.crtClear = () => terminal.clear();
+  window.crtSelectAll = () => terminal.selectAll();
+  window.crtCopy = () => post({ type: 'copy', data: terminal.getSelection() });
+  window.crtFindNext = (query, caseSensitive, incremental) =>
+    searchAddon.findNext(query, searchOptions(caseSensitive, incremental));
+  window.crtFindPrevious = (query, caseSensitive) =>
+    searchAddon.findPrevious(query, searchOptions(caseSensitive, false));
+  window.crtClearSearch = () => searchAddon.clearDecorations();
+  window.crtApplyAppearance = settings => {
+    const themes = {
+      Dark: {
+        background: '#0c0c0c', foreground: '#cccccc', cursor: '#ffffff', cursorAccent: '#0c0c0c',
+        selectionBackground: '#264f78', black: '#0c0c0c', red: '#c50f1f', green: '#13a10e',
+        yellow: '#c19c00', blue: '#0037da', magenta: '#881798', cyan: '#3a96dd', white: '#cccccc',
+        brightBlack: '#767676', brightRed: '#e74856', brightGreen: '#16c60c', brightYellow: '#f9f1a5',
+        brightBlue: '#3b78ff', brightMagenta: '#b4009e', brightCyan: '#61d6d6', brightWhite: '#f2f2f2'
+      },
+      Light: {
+        background: '#f5f5f5', foreground: '#1e1e1e', cursor: '#111111', cursorAccent: '#f5f5f5',
+        selectionBackground: '#add6ff', black: '#000000', red: '#cd3131', green: '#00bc00',
+        yellow: '#949800', blue: '#0451a5', magenta: '#bc05bc', cyan: '#0598bc', white: '#555555',
+        brightBlack: '#666666', brightRed: '#cd3131', brightGreen: '#14ce14', brightYellow: '#b5ba00',
+        brightBlue: '#0451a5', brightMagenta: '#bc05bc', brightCyan: '#0598bc', brightWhite: '#a5a5a5'
+      },
+      SolarizedDark: {
+        background: '#002b36', foreground: '#839496', cursor: '#93a1a1', cursorAccent: '#002b36',
+        selectionBackground: '#073642', black: '#073642', red: '#dc322f', green: '#859900',
+        yellow: '#b58900', blue: '#268bd2', magenta: '#d33682', cyan: '#2aa198', white: '#eee8d5',
+        brightBlack: '#586e75', brightRed: '#cb4b16', brightGreen: '#586e75', brightYellow: '#657b83',
+        brightBlue: '#839496', brightMagenta: '#6c71c4', brightCyan: '#93a1a1', brightWhite: '#fdf6e3'
+      },
+      Monokai: {
+        background: '#272822', foreground: '#f8f8f2', cursor: '#f8f8f0', cursorAccent: '#272822',
+        selectionBackground: '#49483e', black: '#272822', red: '#f92672', green: '#a6e22e',
+        yellow: '#f4bf75', blue: '#66d9ef', magenta: '#ae81ff', cyan: '#a1efe4', white: '#f8f8f2',
+        brightBlack: '#75715e', brightRed: '#f92672', brightGreen: '#a6e22e', brightYellow: '#f4bf75',
+        brightBlue: '#66d9ef', brightMagenta: '#ae81ff', brightCyan: '#a1efe4', brightWhite: '#f9f8f5'
+      }
+    };
+    const theme = themes[settings.theme] || themes.Dark;
+    const fontName = String(settings.fontFamily || 'Cascadia Mono').replace(/["\\]/g, '');
+    terminal.options.fontFamily = `"${fontName}", Consolas, monospace`;
+    terminal.options.fontSize = Math.max(8, Math.min(72, Number(settings.fontSize) || 14));
+    terminal.options.theme = theme;
+    terminal.options.cursorStyle = ['block', 'underline', 'bar'].includes(settings.cursorStyle)
+      ? settings.cursorStyle : 'block';
+    terminal.options.cursorBlink = Boolean(settings.cursorBlink);
+    document.body.style.background = theme.background;
+    requestAnimationFrame(() => fitAddon.fit());
+  };
+  window.crtSetScrollback = lines => {
+    terminal.options.scrollback = Math.max(0, Math.min(1000000, Number(lines) || 10000));
+  };
+
+  let fitTimer;
+  const fit = () => {
+    clearTimeout(fitTimer);
+    fitTimer = setTimeout(() => {
+      try { fitAddon.fit(); } catch (_) { }
+    }, 30);
+  };
+  new ResizeObserver(fit).observe(document.getElementById('terminal'));
+  fitAddon.fit();
+  terminal.focus();
+  post({ type: 'ready' });
+</script>
+</body>
+</html>

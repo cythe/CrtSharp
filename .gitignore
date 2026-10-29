@@ -1,0 +1,19 @@
+# .NET 构建产物
+bin/
+obj/
+*.user
+*.suo
+
+# npm
+node_modules/
+
+# WebView2 运行时用户数据（EBWebView 缓存等）
+*.exe.WebView2/
+
+# 运行时生成的日志与临时文件
+*.log
+*.tmp
+
+# IDE
+.vs/
+.idea/

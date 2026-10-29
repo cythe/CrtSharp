@@ -1,0 +1,306 @@
+<Window x:Class="CrtSharp.NewSessionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="连接会话" Height="730" Width="560"
+        WindowStartupLocation="CenterOwner" ResizeMode="NoResize"
+        Background="#202020" Foreground="#F0F0F0">
+    <Window.Resources>
+        <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#333333"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#333333"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="#0E639C"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="White"/>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#F0F0F0"/>
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#F0F0F0"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="0,4,0,10"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="CaretBrush" Value="White"/>
+        </Style>
+        <Style TargetType="PasswordBox">
+            <Setter Property="Margin" Value="0,4,0,10"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="0,4,0,10"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="ComboBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="2">
+                                <Grid>
+                                    <ContentPresenter x:Name="SelectionPresenter" Margin="9,4,34,4"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      ContentStringFormat="{TemplateBinding SelectionBoxItemStringFormat}"
+                                                      TextElement.Foreground="#F5F5F5"
+                                                      IsHitTestVisible="False"/>
+                                    <Path HorizontalAlignment="Right" VerticalAlignment="Center"
+                                          Margin="0,0,11,0" Fill="#F5F5F5"
+                                          Data="M 0 0 L 8 0 L 4 5 Z" IsHitTestVisible="False"/>
+                                    <ToggleButton Background="Transparent" BorderThickness="0"
+                                                  Focusable="False" ClickMode="Press"
+                                                  IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                        <ToggleButton.Template>
+                                            <ControlTemplate TargetType="ToggleButton">
+                                                <Border Background="Transparent"/>
+                                            </ControlTemplate>
+                                        </ToggleButton.Template>
+                                    </ToggleButton>
+                                    <TextBox x:Name="PART_EditableTextBox"
+                                             Margin="9,4,34,4" Padding="0"
+                                             VerticalAlignment="Center" VerticalContentAlignment="Center"
+                                             Background="Transparent" BorderThickness="0"
+                                             Foreground="#F5F5F5" CaretBrush="#F5F5F5"
+                                             IsReadOnly="{TemplateBinding IsReadOnly}"
+                                             Visibility="Collapsed"/>
+                                </Grid>
+                            </Border>
+                            <Popup x:Name="PART_Popup" Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                                <Border MinWidth="{TemplateBinding ActualWidth}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                        Background="#333333" BorderBrush="#666666"
+                                        BorderThickness="1" CornerRadius="2">
+                                    <ScrollViewer Margin="1" SnapsToDevicePixels="True"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsEditable" Value="True">
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="SelectionPresenter" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="ComboBorder" Property="BorderBrush" Value="#0E8AD0"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="ComboBorder" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="#F5F5F5"/>
+            <Setter Property="Padding" Value="8,5"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="ItemBorder" Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              TextElement.Foreground="{TemplateBinding Foreground}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#0E639C"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="ItemBorder" Property="Background" Value="#094771"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="18,7"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="MinWidth" Value="82"/>
+            <Setter Property="Background" Value="#333333"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="#555555"/>
+        </Style>
+        <DataTemplate x:Key="DisplayOptionTemplate">
+            <TextBlock Text="{Binding Display}" TextTrimming="CharacterEllipsis"/>
+        </DataTemplate>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="会话名称"/>
+            <TextBox x:Name="NameBox"/>
+            <TextBlock Text="连接协议"/>
+            <ComboBox x:Name="ProtocolBox" SelectionChanged="ProtocolBox_SelectionChanged"/>
+        </StackPanel>
+
+        <Border x:Name="NetworkBorder" Grid.Row="1" Margin="0,4,0,0" Padding="14"
+                BorderBrush="#454545" BorderThickness="1" CornerRadius="4">
+            <Grid x:Name="NetworkPanel">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="110"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="主机名或 IP"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="端口"/>
+                <TextBox x:Name="HostBox" Grid.Row="1" Grid.Column="0"/>
+                <TextBox x:Name="PortBox" Grid.Row="1" Grid.Column="2"/>
+
+                <StackPanel x:Name="SshCredentialsPanel" Grid.Row="2" Grid.ColumnSpan="3">
+                    <TextBlock Text="用户名"/>
+                    <TextBox x:Name="UsernameBox"/>
+                    <TextBlock Text="认证方式"/>
+                    <ComboBox x:Name="SshAuthBox" SelectionChanged="SshAuthBox_SelectionChanged"
+                              ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                              SelectedValuePath="Value"/>
+
+                    <StackPanel x:Name="PasswordPanel">
+                        <TextBlock Text="密码"/>
+                        <PasswordBox x:Name="PasswordBox"/>
+                        <CheckBox x:Name="RememberPasswordBox"
+                                  Content="保存密码（使用 Windows 当前账户加密）"
+                                  Margin="0,0,0,10"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PrivateKeyPanel" Visibility="Collapsed">
+                        <TextBlock Text="私钥文件"/>
+                        <Grid Margin="0,4,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="PrivateKeyPathBox" Margin="0"/>
+                            <Button Grid.Column="1" Content="浏览…" Padding="12,6" Click="BrowsePrivateKey_Click"/>
+                        </Grid>
+                        <TextBlock Text="密钥口令（无口令可留空，不保存）"/>
+                        <PasswordBox x:Name="PrivateKeyPassphraseBox"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border x:Name="SerialPanel" Grid.Row="1" Margin="0,4,0,0" Padding="14"
+                BorderBrush="#454545" BorderThickness="1" CornerRadius="4" Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="18"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Grid.Column="0">
+                    <TextBlock Text="串口"/>
+                    <ComboBox x:Name="SerialPortBox" IsEditable="False"/>
+                </StackPanel>
+                <StackPanel Grid.Row="0" Grid.Column="2">
+                    <TextBlock Text="波特率"/>
+                    <ComboBox x:Name="BaudRateBox" IsEditable="True"
+                              ToolTip="可从列表选择，也可直接输入自定义波特率（大于 0 的整数）"
+                              PreviewTextInput="DigitsOnly_PreviewTextInput"
+                              PreviewKeyDown="DigitsOnly_PreviewKeyDown"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0">
+                    <TextBlock Text="数据位"/>
+                    <ComboBox x:Name="DataBitsBox"/>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Grid.Column="2">
+                    <TextBlock Text="校验位"/>
+                    <ComboBox x:Name="ParityBox" ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                              SelectedValuePath="Value"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="2" Grid.Column="0">
+                    <TextBlock Text="停止位"/>
+                    <ComboBox x:Name="StopBitsBox" ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                              SelectedValuePath="Value"/>
+                </StackPanel>
+                <StackPanel Grid.Row="2" Grid.Column="2">
+                    <TextBlock Text="流控"/>
+                    <ComboBox x:Name="HandshakeBox" ItemTemplate="{StaticResource DisplayOptionTemplate}"
+                              SelectedValuePath="Value"
+                              SelectionChanged="HandshakeBox_SelectionChanged"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Margin="0,6,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox x:Name="DtrEnableBox" Content="启用 DTR" Margin="0,0,28,0"/>
+                        <CheckBox x:Name="RtsEnableBox" Content="启用 RTS"/>
+                    </StackPanel>
+                    <TextBlock Margin="0,10,0,0" Foreground="#AAAAAA" TextWrapping="Wrap"
+                               Text="默认 8N1；RTS/CTS 流控启用时，RTS 由驱动自动管理。"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <StackPanel Grid.Row="2" VerticalAlignment="Bottom" Margin="0,14,0,16">
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="终端滚屏行数" VerticalAlignment="Center"/>
+                <ComboBox x:Name="ScrollbackLinesBox" Grid.Column="1" Margin="0" IsEditable="True"
+                          ToolTip="可从列表选择，也可直接输入 0 ~ 1000000 行"
+                          PreviewTextInput="DigitsOnly_PreviewTextInput"
+                          PreviewKeyDown="DigitsOnly_PreviewKeyDown"/>
+                <Button Grid.Column="2" Content="终端外观…" Padding="12,6"
+                        Click="TerminalAppearance_Click"/>
+            </Grid>
+            <CheckBox x:Name="SaveProfileBox"
+                      Content="保存到左侧会话列表（可选保存密码；密钥口令不保存）" IsChecked="True"
+                      Checked="SaveProfileBox_Changed" Unchecked="SaveProfileBox_Changed"/>
+            <TextBlock x:Name="ValidationText" Margin="0,10,0,0" Foreground="#FF7777" TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="取消" IsCancel="True"/>
+            <Button x:Name="PrimaryActionButton" Content="连接" IsDefault="True" Click="Connect_Click"
+                    Background="#0E639C" Foreground="White" BorderBrush="#1177BB"/>
+        </StackPanel>
+    </Grid>
+</Window>
