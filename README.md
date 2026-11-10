@@ -52,6 +52,9 @@ dotnet publish -c Release -r win-x64 --self-contained false
 
 ## 暂未实现
 
+- 复制粘贴有问题: shift c shiftv会粘贴两次, 复现为奇偶错误.
+- 双击选中有问题, 双击选中会选一串, 不能只选目录, 把前面的host也加上了
+- 滚动条右边有白边, 需要改
 - SSH Agent/键盘交互认证
 - 会话文件夹、代理跳板、端口转发
 - 脚本
